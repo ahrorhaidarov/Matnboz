@@ -3,7 +3,7 @@ import re
 import io
 
 # Харфҳои иҷозатдодашуда
-allowed_chars = "ёйқукенгшҳзхъфҷвапролджэячсмитӣбюғӯЁЙҚУКЕНГШҲЗХЪФҶВАПРОЛДЖЭЯЧСМИТӢБЮҒӮ?.,"
+allowed_chars = "ёйқукенгшҳзхъфҷвапролджэячсмитӣбюғӯЁЙҚУКЕНГШҲЗХЪФҷВАПРОЛДЖЭЯЧСМИТӢБЮҒӮ?.,"
 
 # Ислоҳ кардани ҳарфҳои нодуруст
 fix_tajik_letters = {
@@ -70,12 +70,11 @@ def read_and_filter_sentences(text):
 # ---- Streamlit UI ----
 st.set_page_config(page_title="Матнбоз - Филтркунии матнҳо", page_icon="📖", layout="centered")
 
-# --- Зеботар кардан бо CSS ---
 st.markdown(
     """
     <style>
     .main {
-        background-color: var(--bg-color, #f5f7fa); /* Use a CSS variable */
+        background-color: var(--bg-color, #f5f7fa);
         padding: 20px;
         border-radius: 10px;
     }
@@ -85,10 +84,11 @@ st.markdown(
         font-size: 18px;
         padding: 10px 24px;
         border-radius: 10px;
+        margin-top: 10px;
     }
     .stTextArea>div>div>textarea {
-        background-color: var(--input-bg-color, #000000); /* Use a CSS variable */
-        color: var(--input-text-color, #ffffff); /* Use a CSS variable */
+        background-color: var(--input-bg-color, #000000);
+        color: var(--input-text-color, #ffffff);
         border: 2px solid #4CAF50;
         border-radius: 10px;
         padding: 10px;
@@ -102,17 +102,18 @@ st.markdown(
     }
     /* Define CSS variables for light and dark themes */
     :root {
-        --bg-color: #f5f7fa;  /* Light theme background */
-        --input-bg-color: #ffffff; /* Light theme input background */
-        --input-text-color: #000000; /* Light theme input text color */
+        --bg-color: #f5f7fa;
+        --input-bg-color: #ffffff;
+        --input-text-color: #000000;
     }
     @media (prefers-color-scheme: dark) {
         :root {
-            --bg-color: #0f172a;  /* Dark theme background */
-            --input-bg-color: #000000; /* Dark theme input background */
-            --input-text-color: #ffffff; /* Dark theme input text color */
+            --bg-color: #0f172a;
+            --input-bg-color: #000000;
+            --input-text-color: #ffffff;
         }
     }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -143,6 +144,8 @@ if st.button("🔍 Ҷудокунии Ҷумлаҳо"):
             result_file = io.BytesIO(result_bytes)
 
             st.success(f"✅ Ҷумлаҳои филтршуда: {len(filtered)} адад.")
+            # Display the result
+            st.code(result_text, language='text', height=300)
 
             st.download_button(
                 label="⬇️ Боргирии натиҷаҳо",
