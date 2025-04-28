@@ -75,7 +75,7 @@ st.markdown(
     """
     <style>
     .main {
-        background-color: #f5f7fa;
+        background-color: var(--bg-color, #f5f7fa); /* Use a CSS variable */
         padding: 20px;
         border-radius: 10px;
     }
@@ -86,13 +86,32 @@ st.markdown(
         padding: 10px 24px;
         border-radius: 10px;
     }
-    .stTextArea textarea {
-        background-color: #000000;
-        color: #ffffff;
+    .stTextArea>div>div>textarea {
+        background-color: var(--input-bg-color, #000000); /* Use a CSS variable */
+        color: var(--input-text-color, #ffffff); /* Use a CSS variable */
         border: 2px solid #4CAF50;
         border-radius: 10px;
         padding: 10px;
         font-size: 16px;
+        width: 100%;
+        min-height: 200px;
+    }
+    .stTextArea>div>div>textarea:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.7);
+    }
+    /* Define CSS variables for light and dark themes */
+    :root {
+        --bg-color: #f5f7fa;  /* Light theme background */
+        --input-bg-color: #ffffff; /* Light theme input background */
+        --input-text-color: #000000; /* Light theme input text color */
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-color: #0f172a;  /* Dark theme background */
+            --input-bg-color: #000000; /* Dark theme input background */
+            --input-text-color: #ffffff; /* Dark theme input text color */
+        }
     }
     </style>
     """,
@@ -138,4 +157,3 @@ if st.button("🔍 Ҷудокунии Ҷумлаҳо"):
 st.markdown("---")
 st.caption("🚀 Лоиҳа аз ҷониби Аҳрорҷон Ҳ. • Барои забони тоҷикӣ 🇹🇯 ")
 st.caption("Алоқа: alanjon1312@gmail.com")
-
