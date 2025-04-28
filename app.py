@@ -145,7 +145,8 @@ if st.button("🔍 Ҷудокунии Ҷумлаҳо"):
 
             st.success(f"✅ Ҷумлаҳои филтршуда: {len(filtered)} адад.")
             # Display the result
-            st.code(result_text, language='text', height=300)
+            with st.container(height=300):
+                st.code(result_text, language='text')
 
             st.download_button(
                 label="⬇️ Боргирии натиҷаҳо",
