@@ -3,4 +3,4 @@ altair
 pandas
 numpy
 python-docs
-PyMyPDF
+pymypdf
