@@ -1,21 +1,16 @@
 import streamlit as st
-import io
+from utils import (
+    read_and_filter_sentences,
+    extract_text_from_pdf,
+    extract_text_from_docx
+)
 
-from utils import read_and_filter_sentences
-
-
-
-# ---- Streamlit UI ----
 st.set_page_config(page_title="Матнбоз - Филтркунии матнҳо", page_icon="📖", layout="centered")
 
+# --- CSS Styling ---
 st.markdown(
     """
     <style>
-    .main {
-        background-color: var(--bg-color, #f5f7fa);
-        padding: 20px;
-        border-radius: 10px;
-    }
     .stButton>button {
         background-color: #4CAF50;
         color: white;
@@ -38,7 +33,6 @@ st.markdown(
         outline: none;
         box-shadow: 0 0 5px rgba(76, 175, 80, 0.7);
     }
-    /* Define CSS variables for light and dark themes */
     :root {
         --bg-color: #f5f7fa;
         --input-bg-color: #ffffff;
@@ -51,50 +45,82 @@ st.markdown(
             --input-text-color: #ffffff;
         }
     }
-
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# --- Сарлавҳа ---
-st.title("📖 Матнбоз")
-st.subheader("🎯 Барнома барои ҷудо ва филтр кардани ҷумлаҳо аз матни калон")
+# --- Init session state ---
+for key in ["input_text", "result_text", "filtered_sentences"]:
+    st.session_state.setdefault(key, "")
+st.session_state.setdefault("uploaded", False)
+st.session_state.setdefault("uploader_key", 0)
 
-st.write(
-    "Бо истифода аз **Матнбоз** шумо метавонед аз матнҳои калон ҷумлаҳои мувофиқро ҷудо карда, "
-    "онҳоро дар шакли файл (.txt) захира кунед."
+# --- Title ---
+st.title("📖 Матнбоз")
+st.subheader("🎯 Барнома барои ҷудо ва филтр кардани ҷумлаҳо аз матнҳои PDF, DOCX ва матни дастӣ")
+
+st.write('Бо истифода аз Матнбоз шумо метавонед матни файли PDF ё DOCX-ро хонда, ё матни дастӣ воридкардаро ба ҷумлаҳои ҷудо ва филтршударо табдил диҳед ва натиҷаҳоро дар шакли файл (.txt) захира кунед.')
+
+# --- Upload / Input ---
+st.markdown("### 📥 Ворид кардани матн ё боркунии файл")
+
+uploaded_file = st.file_uploader(
+    "📎 Файли худро (.pdf ё .docx) бор кунед:",
+    type=["pdf", "docx"],
+    key=f"uploader_{st.session_state.uploader_key}"
 )
 
-# --- Матн ворид кардан ---
-user_text = st.text_area("✏️ Матни худро дар ин ҷо ворид намоед:", height=300)
+if uploaded_file:
+    st.session_state.uploaded = True
 
-# --- Тугмаи Филтр кардан ---
+# If no file is uploaded, show text input
+if not st.session_state.uploaded:
+    manual_input = st.text_area("✏️ Ё матни худро дастӣ ворид кунед:", height=200)
+
+# --- START Processing ---
 if st.button("🔍 Ҷудокунии Ҷумлаҳо"):
-    if user_text.strip() == "":
-        st.warning("⚠️ Лутфан аввал матнро ворид кунед!")
+    if uploaded_file:
+        if uploaded_file.type == "application/pdf":
+            st.session_state.input_text = extract_text_from_pdf(uploaded_file)
+            st.info("📄 Матн аз файли PDF хонда шуд.")
+        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            st.session_state.input_text = extract_text_from_docx(uploaded_file)
+            st.info("📄 Матн аз файли DOCX хонда шуд.")
+        st.session_state.uploaded = False
+    elif not st.session_state.uploaded and 'manual_input' in locals() and manual_input.strip():
+        st.session_state.input_text = manual_input
+        st.info("📝 Матн аз саҳфаи воридгардида хонда шуд.")
     else:
-        filtered = read_and_filter_sentences(user_text)
+        st.warning("⚠️ Лутфан аввал матн ворид кунед ё файл бор кунед!")
 
-        if filtered:
-            result_text = "\n".join(filtered)
-            result_bytes = result_text.encode('utf-8')
-            result_file = io.BytesIO(result_bytes)
+    # Process the input text
+    if st.session_state.input_text.strip():
+        filtered = read_and_filter_sentences(st.session_state.input_text)
+        st.session_state.filtered_sentences = filtered
+        st.session_state.result_text = "\n".join(filtered)
 
-            st.success(f"✅ Ҷумлаҳои филтршуда: {len(filtered)} адад.")
-            # Display the result
-            st.code(result_text, language='text', height=300)
+# --- Results ---
+if st.session_state.filtered_sentences:
+    st.markdown("### ✅ Ҷумлаҳои филтршуда:")
+    st.code(st.session_state.result_text, language="text", height=300)
 
-            st.download_button(
-                label="⬇️ Боргирии натиҷаҳо",
-                data=result_file,
-                file_name="натиҷа.txt",
-                mime="text/plain"
-            )
-        else:
-            st.warning("⚠️ Ҷумлаи мувофиқ ёфт нашуд.")
+    st.download_button(
+        label="⬇️ Боргирии натиҷаҳо",
+        data=st.session_state.result_text.encode("utf-8"),
+        file_name="натиҷа.txt",
+        mime="text/plain"
+    )
 
-# --- Поён ---
+    # --- Reset ---
+    if st.button("🔁 Оғози нав"):
+        for key in ["input_text", "result_text", "filtered_sentences"]:
+            st.session_state[key] = ""
+        st.session_state.uploaded = False
+        st.session_state.uploader_key += 1  # force file_uploader to reset
+        st.rerun()
+
+# --- Footer ---
 st.markdown("---")
-st.caption("🚀 Лоиҳа аз ҷониби Аҳрорҷон Ҳ. • Барои забони тоҷикӣ 🇹🇯 ")
+st.caption("🚀 Лоиҳа аз ҷониби Аҳрорҷон Ҳ. • Барои забони тоҷикӣ 🇹🇯")
 st.caption("Алоқа: alanjon1312@gmail.com")

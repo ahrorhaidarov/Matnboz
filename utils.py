@@ -1,10 +1,12 @@
+# utils.py
 import re
-import io
+import fitz  # PyMuPDF
+from docx import Document
 
-# Харфҳои иҷозатдодашуда
+# Allowed Tajik characters
 allowed_chars = "ёйқукенгшҳзхъфҷвапролджэячсмитӣбюғӯЁЙҚУКЕНГШҲЗХЪФҶВАПРОЛДЖЭЯЧСМИТӢБЮҒӮ?.,"
 
-# Ислоҳ кардани ҳарфҳои нодуруст
+# Incorrect -> Correct Tajik letters
 fix_tajik_letters = {
     "r": "к",
     "ў": "ӯ",
@@ -25,20 +27,14 @@ fix_tajik_letters = {
 }
 
 def fix_sentence(sentence):
-    fixed = ""
-    for char in sentence:
-        if char in fix_tajik_letters:
-            fixed += fix_tajik_letters[char]
-        else:
-            fixed += char
-    return fixed
+    return ''.join(fix_tajik_letters.get(char, char) for char in sentence)
 
 def is_valid_sentence(sentence):
     for char in sentence:
         if char not in allowed_chars and not char.isspace():
             return False
     words = sentence.strip().split()
-    return len(words) <= 15 and len(words) > 3
+    return 3 < len(words) <= 15
 
 def remove_initial_uppercase(sentence):
     words = sentence.split()
@@ -66,3 +62,10 @@ def read_and_filter_sentences(text):
 
     return filtered_sentences
 
+def extract_text_from_pdf(file):
+    doc = fitz.open(stream=file.read(), filetype="pdf")
+    return ' '.join(page.get_text() for page in doc)
+
+def extract_text_from_docx(file):
+    doc = Document(file)
+    return '\n'.join(para.text for para in doc.paragraphs)
