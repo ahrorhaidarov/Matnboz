@@ -100,8 +100,10 @@ if st.button("🔍 Ҷудокунии Ҷумлаҳо"):
         st.session_state.filtered_sentences = filtered
         st.session_state.result_text = "\n".join(filtered)
 
+
 # --- Results ---
 if st.session_state.filtered_sentences:
+    st.success(f"🔎 Ҷумлаҳои мувофиқ ёфт шуд: {len(st.session_state.filtered_sentences)} адад")
     st.markdown("### ✅ Ҷумлаҳои филтршуда:")
     st.code(st.session_state.result_text, language="text", height=300)
 
