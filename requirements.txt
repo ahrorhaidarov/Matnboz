@@ -2,3 +2,5 @@ streamlit==1.43.2
 altair==4.2.2
 pandas==2.2.3
 numpy==2.2.5
+python-docs==1.1.2
+PyMyPDF==1.25.5
