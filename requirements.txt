@@ -3,4 +3,4 @@ altair
 pandas
 numpy
 PyMuPDF
-python-docs
+python-docx
