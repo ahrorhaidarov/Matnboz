@@ -1,6 +1,6 @@
-streamlit==1.43.2
-altair==4.2.2
-pandas==2.2.3
-numpy==2.2.5
+streamlit
+altair
+pandas
+numpy
 python-docs
 PyMyPDF
